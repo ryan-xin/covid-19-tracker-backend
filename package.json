@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "seed": "node models/users-seeds.js; node admins-cases.js",
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,9 @@
     "express-jwt": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.2",
+    "mongoose": "^5.10.6"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.4"
   }
 }
