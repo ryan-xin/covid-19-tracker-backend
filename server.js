@@ -136,7 +136,49 @@ app.post('/user/signup', (req, res) => {
   })
 }); // post user/signup
 
-
+app.post('/admin/login', (req, res) => {
+  console.log('Admin login data', req.body);
+  const {
+    email,
+    password
+  } = req.body;
+  db.collection('admins').findOne({
+    email
+  }, (err, admin) => { // {email: email}
+    if (err) {
+      res.status(500).json({
+        message: 'Server error'
+      })
+      return console.log('Error retrieving admin', err);
+    }
+    console.log('Admin found', admin);
+    // res.json(admin);
+    // Check that we actually found a admin with the specified email, and also that the password given matches the password for that admin
+    if (admin && bcrypt.compareSync(password, admin.password)) {
+      // Successful login
+      // Generate a signed JWT token which contains the admin data
+      const token = jwt.sign({
+          _id: admin._id,
+          email: admin.email,
+          name: admin.name
+        },
+        SERVER_SECRET_KEY, {
+          expiresIn: '24h'
+        }
+      );
+      res.json({
+        admin,
+        token,
+        success: true
+      });
+    } else {
+      // Either user not found or password doesn't match
+      res.status(401).json({
+        message: 'Invalid email or password.'
+      });
+    }
+  }); // findOne
+}); // post admin/login
 
 
 // Define an error handler function for express to use whenever there is an authentication error
