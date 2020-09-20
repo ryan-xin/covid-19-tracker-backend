@@ -103,7 +103,7 @@ app.post('/user/login', (req, res) => {
       });
     }
   }); // findOne
-}); // post user/login
+}); // post /user/login
 
 app.post('/user/signup', (req, res) => {
   console.log('User signup data', req.body);
@@ -134,7 +134,7 @@ app.post('/user/signup', (req, res) => {
       success: true
     });
   })
-}); // post user/signup
+}); // post /user/signup
 
 app.post('/admin/login', (req, res) => {
   console.log('Admin login data', req.body);
@@ -178,8 +178,17 @@ app.post('/admin/login', (req, res) => {
       });
     }
   }); // findOne
-}); // post admin/login
+}); // post /admin/login
 
+app.get('/cases', (req, res) => {
+  db.collection('cases').find({}).toArray((err, result) => {
+    if (err) {
+      console.log('Query err', err);
+      return res.sendStatus(500);
+    }
+    res.json(result);
+  }); // find cases
+}); // get /cases
 
 // Define an error handler function for express to use whenever there is an authentication error
 app.use((err, req, res, next) => {
