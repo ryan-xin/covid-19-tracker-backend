@@ -2,8 +2,6 @@
 
 const mongoose = require('mongoose');
 
-const db = require('./models');
-
 
 mongoose
 .connect('mongodb://127.0.0.1:27017/covid19', {
@@ -13,8 +11,8 @@ mongoose
 .then(() => console.log('Successfully connect to MongoDB.'))
 .catch(err => console.error('Connection error', err));
 
-console.log(db.User.find());
-// const db = mongoose.connection;
+// const db = require('./models');
+const db = mongoose.connection;
 
 /* ------------ Express Server Initialization ----------- */
 
@@ -62,13 +60,14 @@ app.get('/', (req, res) => {
 });
 
 app.post('/user/login', (req, res) => {
-  console.log('posted data', req.body);
+  console.log('User login data', req.body);
   // res.json(req.body); // echo back the POSTed form data
   const {
     email,
     password
   } = req.body; // const email = req.body.email
-  db.User.findOne({
+  //TODO: Mongoose doesn't work
+  db.collection('users').findOne({
     email
   }, (err, user) => { // {email: email}
     if (err) {
@@ -106,7 +105,36 @@ app.post('/user/login', (req, res) => {
   }); // findOne
 }); // post user/login
 
-
+app.post('/user/signup', (req, res) => {
+  console.log('User signup data', req.body);
+  const {
+    name,
+    email,
+    suburb
+  } = req.body;
+  const password = bcrypt.hashSync(req.body.password, 10)
+  db.collection('users').insertOne({name, email, password, suburb}, (err, user) => {
+    if (err) {
+      res.status(500).json({message: 'Server error'})
+      return console.log('Error inserting user', err);
+    }
+    console.log('User added', user);
+    const token = jwt.sign({
+        _id: user._id,
+        email: user.email,
+        name: user.name
+      },
+      SERVER_SECRET_KEY, {
+        expiresIn: '72h'
+      }
+    );
+    res.json({
+      user,
+      token,
+      success: true
+    });
+  })
+}); // post user/signup
 
 
 
