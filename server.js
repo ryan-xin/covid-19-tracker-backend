@@ -70,11 +70,31 @@ const getAdminWithPopulate = (id) => {
   return Admin.findById(id).populate("cases");
 }; // getAdminWithPopulate
 
+/* ----------------------- Suburb ----------------------- */
+const fs = require('fs');
+const suburbsFile = fs.readFileSync('suburbs.json');
+let suburbs = JSON.parse(suburbsFile);
+suburbs = suburbs.data.filter(suburb => suburb.state_name === 'New South Wales');
+console.log(suburbs);
+const filteredSuburbs = suburbs.map(({suburb, postcode}) => ({
+  suburb, postcode
+}));
+console.log(filteredSuburbs);
+
+app.get('/suburbs', (req, res) => {
+  console.log('Getting all suburbs');
+  res.json(filteredSuburbs);
+}) // get /suburbs
+
 /* ----------------------- Routes ----------------------- */
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to covid-19 Tracker.' });
 });
+
+app.get('/users', (req, res) => {
+  console.log('Find user', res.body);
+}); // get /users
 
 app.post('/user/login', (req, res) => {
   console.log('User login data', req.body);
@@ -83,7 +103,6 @@ app.post('/user/login', (req, res) => {
     email,
     password
   } = req.body; // const email = req.body.email
-  //TODO: Mongoose doesn't work
   User.findOne({email}, (err, user) => { // {email: email}
     if (err) {
       res.status(500).json({
@@ -200,7 +219,7 @@ app.post('/admin/login', (req, res) => {
   }); // findOne
 }); // post /admin/login
 
-app.get('/cases', (req, res) => {
+app.get('/cases', checkAuth(), (req, res) => {
   Case.find({},(err, result) => {
     if (err) {
       console.log('Query err', err);
@@ -210,35 +229,45 @@ app.get('/cases', (req, res) => {
   }); // find cases
 }); // get /cases
 
-app.post('/cases/create', (req, res) => {
-  console.log('New case data', req.body);
-  const {
-    suburb,
-    location,
-    date,
-    month,
-    year,
-    startTime,
-    endTime
-  } = req.body;
-  Admin.findOne({"_id" : ObjectId(req.body.adminID)}, (err, admin) => {
-    if (err) {
-      res.sendStatus(500);
-      return console.log('Finding admin', err);
-    }
-    console.log('Admin found', req.body.adminID, admin);
-    // admin = createCase(admin._id, {
-    //   location,
-    //   suburb,
-    //   year,
-    //   month,
-    //   day,
-    //   startTime,
-    //   endTime
-    // });
-    // admin = getAdminWithPopulate(admin._id);
-  }); // findOne admin
+app.post('/cases/create', async (req, res) => {
+  try {
+    console.log('New case data', req.body);
+    const {
+      suburb,
+      location,
+      date,
+      month,
+      year,
+      startTime,
+      endTime
+    } = req.body;
+    let admin = await Admin.findOne({_id: req.body.adminID}, (err, admin) => {
+      if (err) {
+        res.sendStatus(500);
+        return console.log('Finding admin', err);
+      }
+      console.log('Admin found');
+    }); // findOne admin
+    console.log(admin);
+    admin = await createCase(admin._id, {
+      location,
+      suburb,
+      year,
+      month,
+      date,
+      startTime,
+      endTime
+    });
+    admin = await getAdminWithPopulate(admin._id);
+    res.json({admin});
+  } catch (err) {
+    console.log('Error create case', err);
+  } // try
 }); // post /cases/create
+
+app.get('/admin/:adminId', (req, res) => {
+  console.log('Admin profile', req.params.adminId);
+}); // get /admin/:adminId
 
 // Define an error handler function for express to use whenever there is an authentication error
 app.use((err, req, res, next) => {
