@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose');
 
-
 mongoose
 .connect('mongodb://127.0.0.1:27017/covid19', {
   useNewUrlParser: true,
@@ -12,7 +11,10 @@ mongoose
 .catch(err => console.error('Connection error', err));
 
 // const db = require('./models');
-const db = mongoose.connection;
+// const db = mongoose.connection;
+const User = require('./models/User');
+const Admin = require('./models/Admin');
+const Case = require('./models/Case');
 
 /* ------------ Express Server Initialization ----------- */
 
@@ -53,10 +55,25 @@ const checkAuth = () => {
   });
 };
 
+const createCase = (adminId, cases) => {
+  return Case.create(cases).then(newCase => {
+    console.log('Case created', newCase);
+    return Admin.findByIdAndUpdate(
+      adminId,
+      { $push: { cases: newCase._id } },
+      { new: true, useFindAndModify: false }
+    );
+  });
+}; // createCase
+
+const getAdminWithPopulate = (id) => {
+  return Admin.findById(id).populate("cases");
+}; // getAdminWithPopulate
+
 /* ----------------------- Routes ----------------------- */
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to covid-19 tracker.' });
+  res.json({ message: 'Welcome to covid-19 Tracker.' });
 });
 
 app.post('/user/login', (req, res) => {
@@ -67,9 +84,7 @@ app.post('/user/login', (req, res) => {
     password
   } = req.body; // const email = req.body.email
   //TODO: Mongoose doesn't work
-  db.collection('users').findOne({
-    email
-  }, (err, user) => { // {email: email}
+  User.findOne({email}, (err, user) => { // {email: email}
     if (err) {
       res.status(500).json({
         message: 'Server error'
@@ -112,28 +127,35 @@ app.post('/user/signup', (req, res) => {
     email,
     suburb
   } = req.body;
-  const password = bcrypt.hashSync(req.body.password, 10)
-  db.collection('users').insertOne({name, email, password, suburb}, (err, user) => {
-    if (err) {
-      res.status(500).json({message: 'Server error'})
-      return console.log('Error inserting user', err);
+  User.findOne({email}).then((user) => {
+    if (user) {
+      res.status(401).json({email: 'Email has been taken.'});
+      return console.log('Email exists');
+    } else {
+      const password = bcrypt.hashSync(req.body.password, 10)
+      User.create({name, email, password, suburb}, (err, user) => {
+        if (err) {
+          res.status(500).json({message: 'Server error'})
+          return console.log('Error inserting user', err);
+        }
+        console.log('User added', user);
+        const token = jwt.sign({
+            _id: user._id,
+            email: user.email,
+            name: user.name
+          },
+          SERVER_SECRET_KEY, {
+            expiresIn: '72h'
+          }
+        );
+        res.json({
+          user,
+          token,
+          success: true
+        });
+      }) // create user
     }
-    console.log('User added', user);
-    const token = jwt.sign({
-        _id: user._id,
-        email: user.email,
-        name: user.name
-      },
-      SERVER_SECRET_KEY, {
-        expiresIn: '72h'
-      }
-    );
-    res.json({
-      user,
-      token,
-      success: true
-    });
-  })
+  });
 }); // post /user/signup
 
 app.post('/admin/login', (req, res) => {
@@ -142,9 +164,7 @@ app.post('/admin/login', (req, res) => {
     email,
     password
   } = req.body;
-  db.collection('admins').findOne({
-    email
-  }, (err, admin) => { // {email: email}
+  Admin.findOne({email}, (err, admin) => { // {email: email}
     if (err) {
       res.status(500).json({
         message: 'Server error'
@@ -181,7 +201,7 @@ app.post('/admin/login', (req, res) => {
 }); // post /admin/login
 
 app.get('/cases', (req, res) => {
-  db.collection('cases').find({}).toArray((err, result) => {
+  Case.find({},(err, result) => {
     if (err) {
       console.log('Query err', err);
       return res.sendStatus(500);
@@ -189,6 +209,36 @@ app.get('/cases', (req, res) => {
     res.json(result);
   }); // find cases
 }); // get /cases
+
+app.post('/cases/create', (req, res) => {
+  console.log('New case data', req.body);
+  const {
+    suburb,
+    location,
+    date,
+    month,
+    year,
+    startTime,
+    endTime
+  } = req.body;
+  Admin.findOne({"_id" : ObjectId(req.body.adminID)}, (err, admin) => {
+    if (err) {
+      res.sendStatus(500);
+      return console.log('Finding admin', err);
+    }
+    console.log('Admin found', req.body.adminID, admin);
+    // admin = createCase(admin._id, {
+    //   location,
+    //   suburb,
+    //   year,
+    //   month,
+    //   day,
+    //   startTime,
+    //   endTime
+    // });
+    // admin = getAdminWithPopulate(admin._id);
+  }); // findOne admin
+}); // post /cases/create
 
 // Define an error handler function for express to use whenever there is an authentication error
 app.use((err, req, res, next) => {

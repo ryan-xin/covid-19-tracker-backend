@@ -8,12 +8,11 @@ const caseSchema = new mongoose.Schema({
   day: Number,
   startTime: String,
   endTime: String,
+  createdAt: { type: Date, default: Date.now },
   admin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin',
+    ref: "Admin",
   },
-}, {
-  timestamps: true
 }); // define caseSchema
 
 const Case = mongoose.model('Case', caseSchema);
