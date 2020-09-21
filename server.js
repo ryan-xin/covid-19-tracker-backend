@@ -262,9 +262,31 @@ app.post('/cases/create', async (req, res) => {
     admin = await getAdminWithPopulate(admin._id);
     res.json({admin});
   } catch (err) {
-    console.log('Error create case', err);
+    console.log('Error creating case', err);
   } // try
 }); // post /cases/create
+
+app.post('/cases/delete', async (req, res) => {
+  try {
+    console.log('Delete case', req.body.caseId, req.body.adminId);
+    Case.deleteOne({_id: req.body.caseId}, (err, result) => {
+      if (err) {
+        res.status(500).json({
+          message: 'Server error'
+        })
+        return console.log('Error deleting case', err);
+      }
+      console.log(result);
+    })
+    let admin = await Admin.findOne({_id: req.body.adminId}).populate('cases');
+    console.log(admin);
+    res.json({
+      cases: admin.cases
+    });
+  } catch (err) {
+    console.log('Error deleting case', err);
+  } // try
+}); // post /cases/delete/:caseId
 
 app.get('/admin/profile/:adminId', async (req, res) => {
   try {
