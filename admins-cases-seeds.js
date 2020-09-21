@@ -69,7 +69,7 @@ const run = async () => {
     endTime: '12pm'
   });
   admin1 = await getAdminWithPopulate(admin1._id);
-  console.log('Populated admin', admin1);
+  console.log('Populated admin1', admin1);
   var admin2 = await createAdmin({
     name: 'David',
     email: 'david@ga.co',
@@ -85,7 +85,7 @@ const run = async () => {
     endTime: '1:30pm'
   });
   admin2 = await getAdminWithPopulate(admin2._id);
-  console.log('Populated admin', admin2);
+  console.log('Populated admin2', admin2);
   process.exit(0);
 }; // run
 

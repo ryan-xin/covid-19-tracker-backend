@@ -71,15 +71,16 @@ const getAdminWithPopulate = (id) => {
 }; // getAdminWithPopulate
 
 /* ----------------------- Suburb ----------------------- */
+
 const fs = require('fs');
 const suburbsFile = fs.readFileSync('suburbs.json');
 let suburbs = JSON.parse(suburbsFile);
 suburbs = suburbs.data.filter(suburb => suburb.state_name === 'New South Wales');
-console.log(suburbs);
+// console.log(suburbs);
 const filteredSuburbs = suburbs.map(({suburb, postcode}) => ({
   suburb, postcode
 }));
-console.log(filteredSuburbs);
+// console.log(filteredSuburbs);
 
 app.get('/suburbs', (req, res) => {
   console.log('Getting all suburbs');
@@ -265,8 +266,18 @@ app.post('/cases/create', async (req, res) => {
   } // try
 }); // post /cases/create
 
-app.get('/admin/:adminId', (req, res) => {
-  console.log('Admin profile', req.params.adminId);
+app.get('/admin/profile/:adminId', async (req, res) => {
+  try {
+    console.log('Admin profile adminId', req.params.adminId);
+    let admin = await Admin.findOne({_id: req.params.adminId}).populate('cases');
+    console.log(admin);
+    res.json({
+      admin: admin,
+      cases: admin.cases
+    });
+  } catch (err) {
+    console.log('Error getting admin profile', err);
+  }
 }); // get /admin/:adminId
 
 // Define an error handler function for express to use whenever there is an authentication error
