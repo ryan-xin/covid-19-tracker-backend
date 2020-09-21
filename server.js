@@ -236,7 +236,7 @@ app.post('/cases/create', async (req, res) => {
     const {
       suburb,
       location,
-      date,
+      day,
       month,
       year,
       startTime,
@@ -255,7 +255,7 @@ app.post('/cases/create', async (req, res) => {
       suburb,
       year,
       month,
-      date,
+      day,
       startTime,
       endTime
     });
@@ -287,6 +287,48 @@ app.post('/cases/delete', async (req, res) => {
     console.log('Error deleting case', err);
   } // try
 }); // post /cases/delete/:caseId
+
+app.get('/cases/:caseId', async (req, res) => {
+  try {
+    console.log('Get single case', req.params.caseId);
+    Case.findOne({_id: req.params.caseId}, (err, singleCase) => {
+      if (err) {
+        res.sendStatus(500);
+        return console.log('Finding case', err);
+      }
+      res.json({singleCase});
+    }); // findOne case
+  } catch (err) {
+    console.log('Error getting single case', err);
+  }; // try
+}); // get /cases/:caseId
+
+app.post('/cases/edit', async (req, res) => {
+  try {
+    console.log('Update case', req.body);
+    const {
+      suburb,
+      location,
+      day,
+      month,
+      year,
+      startTime,
+      endTime
+    } = req.body;
+    let updateCase = await Case.findOneAndUpdate({_id: req.body.caseId}, {
+      suburb,
+      location,
+      day,
+      month,
+      year,
+      startTime,
+      endTime
+    }, {new: true});
+    res.json({updateCase});
+  } catch (err) {
+    console.log('Error updating case', err);
+  }; // try
+}); // post /cases/edit
 
 app.get('/admin/profile/:adminId', async (req, res) => {
   try {
