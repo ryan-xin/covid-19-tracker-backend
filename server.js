@@ -91,6 +91,17 @@ app.get('/suburbs', (req, res) => {
   res.json(filteredSuburbsArray);
 }) // get /suburbs
 
+/* ---------------------- Countries --------------------- */
+
+const countriesFile = fs.readFileSync('countries.json');
+const countries = JSON.parse(countriesFile).features;
+console.log(countries);
+
+app.get('/countries', (req, res) => {
+  console.log('Getting all countries');
+  res.json(countries);
+}) // get /suburbs
+
 /* ----------------------- Routes ----------------------- */
 
 app.get('/', (req, res) => {
