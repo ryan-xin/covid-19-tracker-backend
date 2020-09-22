@@ -234,7 +234,7 @@ app.get('/cases', checkAuth(), (req, res) => {
   }); // find cases
 }); // get /cases
 
-app.post('/cases/create', async (req, res) => {
+app.post('/cases/create', checkAuth(), async (req, res) => {
   try {
     console.log('New case data', req.body);
     const {
@@ -307,7 +307,7 @@ app.get('/cases/:caseId', async (req, res) => {
   }; // try
 }); // get /cases/:caseId
 
-app.post('/cases/edit', async (req, res) => {
+app.post('/cases/edit', checkAuth(), async (req, res) => {
   try {
     console.log('Update case', req.body);
     const {
@@ -334,7 +334,7 @@ app.post('/cases/edit', async (req, res) => {
   }; // try
 }); // post /cases/edit
 
-app.get('/admin/profile/:adminId', async (req, res) => {
+app.get('/admin/profile/:adminId', checkAuth(), async (req, res) => {
   try {
     console.log('Admin profile adminId', req.params.adminId);
     let admin = await Admin.findOne({_id: req.params.adminId}).populate('cases');
