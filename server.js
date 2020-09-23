@@ -83,7 +83,9 @@ const filteredSuburbs = suburbs.map(({suburb, postcode}) => ({
 // console.log(filteredSuburbs);
 const filteredSuburbsArray = [];
 filteredSuburbs.forEach(suburb => {
-  filteredSuburbsArray.push(suburb.suburb);
+  if (!filteredSuburbsArray.includes(suburb.suburb)) {
+    filteredSuburbsArray.push(suburb.suburb);
+  }
 });
 
 app.get('/suburbs', (req, res) => {
@@ -100,7 +102,7 @@ console.log(countries);
 app.get('/countries', (req, res) => {
   console.log('Getting all countries');
   res.json(countries);
-}) // get /suburbs
+}) // get /countries
 
 /* ----------------------- Routes ----------------------- */
 
