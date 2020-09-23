@@ -8,6 +8,8 @@ const caseSchema = new mongoose.Schema({
   day: Number,
   startTime: String,
   endTime: String,
+  lat: Number,
+  lng: Number,
   createdAt: { type: Date, default: Date.now },
   admin: {
     type: mongoose.Schema.Types.ObjectId,

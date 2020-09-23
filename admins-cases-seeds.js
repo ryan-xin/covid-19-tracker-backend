@@ -39,7 +39,9 @@ const run = async () => {
     month: 'September',
     day: 13,
     startTime: '10:30am',
-    endTime: '12:45pm'
+    endTime: '12:45pm',
+    lat: -33.732720,
+    lng: 151.005100
   });
   admin1 = await createCase(admin1._id, {
     location: 'Anytime Fitness',
@@ -48,7 +50,9 @@ const run = async () => {
     month: 'September',
     day: 11,
     startTime: '10:15am',
-    endTime: '12pm'
+    endTime: '12pm',
+    lat: -33.739480,
+    lng: 150.960640
   });
   admin1 = await createCase(admin1._id, {
     location: 'Hunters Hill Bowling Club',
@@ -57,7 +61,9 @@ const run = async () => {
     month: 'September',
     day: 8,
     startTime: '6:50pm',
-    endTime: '9pm'
+    endTime: '9pm',
+    lat: -34.845480,
+    lng: 150.740130
   });
   admin1 = await createCase(admin1._id, {
     location: 'Fitness First Maroubra',
@@ -66,7 +72,9 @@ const run = async () => {
     month: 'September',
     day: 5,
     startTime: '8am',
-    endTime: '12pm'
+    endTime: '12pm',
+    lat: -33.776230,
+    lng: 150.932310
   });
   admin1 = await getAdminWithPopulate(admin1._id);
   console.log('Populated admin1', admin1);
@@ -82,7 +90,9 @@ const run = async () => {
     month: 'September',
     day: 5,
     startTime: '12:15pm',
-    endTime: '1:30pm'
+    endTime: '1:30pm',
+    lat: -33.737474,
+    lng: 150.917699
   });
   admin2 = await getAdminWithPopulate(admin2._id);
   console.log('Populated admin2', admin2);
