@@ -255,7 +255,9 @@ app.post('/cases/create', checkAuth(), async (req, res) => {
       month,
       year,
       startTime,
-      endTime
+      endTime,
+      lat,
+      lng
     } = req.body;
     let admin = await Admin.findOne({_id: req.body.adminID}, (err, admin) => {
       if (err) {
@@ -272,7 +274,9 @@ app.post('/cases/create', checkAuth(), async (req, res) => {
       month,
       day,
       startTime,
-      endTime
+      endTime,
+      lat,
+      lng
     });
     admin = await getAdminWithPopulate(admin._id);
     res.json({admin});
@@ -337,7 +341,9 @@ app.post('/cases/edit', checkAuth(), async (req, res) => {
       month,
       year,
       startTime,
-      endTime
+      endTime,
+      lat,
+      lng
     }, {new: true});
     res.json({updateCase});
   } catch (err) {
