@@ -332,7 +332,9 @@ app.post('/cases/edit', checkAuth(), async (req, res) => {
       month,
       year,
       startTime,
-      endTime
+      endTime,
+      lat,
+      lng
     } = req.body;
     let updateCase = await Case.findOneAndUpdate({_id: req.body.caseId}, {
       suburb,
