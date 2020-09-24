@@ -50,7 +50,7 @@ const run = async () => {
     month: 'September',
     day: 11,
     startTime: '10:15am',
-    endTime: '12pm',
+    endTime: '12:00pm',
     lat: -33.739480,
     lng: 150.960640
   });
@@ -61,7 +61,7 @@ const run = async () => {
     month: 'September',
     day: 8,
     startTime: '6:50pm',
-    endTime: '9pm',
+    endTime: '9:00pm',
     lat: -34.845480,
     lng: 150.740130
   });
@@ -71,8 +71,8 @@ const run = async () => {
     year: 2020,
     month: 'September',
     day: 5,
-    startTime: '8am',
-    endTime: '12pm',
+    startTime: '8:00am',
+    endTime: '12:00pm',
     lat: -33.776230,
     lng: 150.932310
   });
