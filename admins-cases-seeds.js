@@ -101,8 +101,10 @@ const run = async () => {
 
 /* ------------------ DB Initialization ----------------- */
 
+const dotenv = require('dotenv').config();
+
 mongoose
-.connect('mongodb://localhost/covid19', {
+.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

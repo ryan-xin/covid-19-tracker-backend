@@ -1,9 +1,11 @@
 /* ------------------ DB Initialization ----------------- */
 
+const dotenv = require("dotenv").config();
+
 const mongoose = require('mongoose');
 
 mongoose
-.connect('mongodb://127.0.0.1:27017/covid19', {
+.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -20,7 +22,7 @@ const Case = require('./models/Case');
 
 const express = require('express');
 const app = express();
-const PORT = 1337;
+const PORT = process.env.PORT || 1337;
 var http = require("http").createServer(app); // For socket.io
 
 // Enable support for JSON-encoded request bodies(i.e. posted form data)
