@@ -21,6 +21,7 @@ const Case = require('./models/Case');
 const express = require('express');
 const app = express();
 const PORT = 1337;
+var http = require("http").createServer(app); // For socket.io
 
 // Enable support for JSON-encoded request bodies(i.e. posted form data)
 app.use(express.json());
@@ -42,7 +43,7 @@ const jwtAuthenticate = require('express-jwt');
 // TODO: Move this out of server file, into .env or .bash_profile etc
 const SERVER_SECRET_KEY = 'covid19TrackerSecretKey';
 
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
 
@@ -55,20 +56,32 @@ const checkAuth = () => {
   });
 };
 
-const createCase = (adminId, cases) => {
-  return Case.create(cases).then(newCase => {
+const createCase = async (adminId, cases) => {
+  try {
+    const newCase = await Case.create(cases)
     console.log('Case created', newCase);
-    return Admin.findByIdAndUpdate(
+    await Admin.findByIdAndUpdate(
       adminId,
       { $push: { cases: newCase._id } },
       { new: true, useFindAndModify: false }
     );
-  });
+    return newCase;
+  } catch (err) {
+    console.log('Error in creating case', err);
+  }
 }; // createCase
 
 const getAdminWithPopulate = (id) => {
   return Admin.findById(id).populate("cases");
 }; // getAdminWithPopulate
+
+/* ---------------------- WebSocket --------------------- */
+
+const io = require('socket.io')(http);
+
+io.on('connection', socket => {
+  console.log('Websocket connected', socket.conn.id);
+});
 
 /* ----------------------- Suburb ----------------------- */
 
@@ -97,7 +110,7 @@ app.get('/suburbs', (req, res) => {
 
 const countriesFile = fs.readFileSync('countries.json');
 const countries = JSON.parse(countriesFile).features;
-console.log(countries);
+// console.log(countries);
 
 app.get('/countries', (req, res) => {
   console.log('Getting all countries');
@@ -249,7 +262,7 @@ app.get('/cases', checkAuth(), (req, res) => {
 
 app.post('/cases/create', checkAuth(), async (req, res) => {
   try {
-    console.log('New case data', req.body);
+    // console.log('New case data', req.body);
     const {
       suburb,
       location,
@@ -261,15 +274,9 @@ app.post('/cases/create', checkAuth(), async (req, res) => {
       lat,
       lng
     } = req.body;
-    let admin = await Admin.findOne({_id: req.body.adminID}, (err, admin) => {
-      if (err) {
-        res.sendStatus(500);
-        return console.log('Finding admin', err);
-      }
-      console.log('Admin found');
-    }); // findOne admin
-    console.log(admin);
-    admin = await createCase(admin._id, {
+
+    // console.log(admin);
+    const createdCase = await createCase(req.user._id, {
       location,
       suburb,
       year,
@@ -280,8 +287,14 @@ app.post('/cases/create', checkAuth(), async (req, res) => {
       lat,
       lng
     });
-    admin = await getAdminWithPopulate(admin._id);
-    res.json({admin});
+    console.log('Case created ===========================');
+    io.emit("notification", {
+      message: "New case added",
+      case: createdCase
+    });
+    console.log('Sent notification');
+    // admin = await getAdminWithPopulate(admin._id);
+    res.json({createdCase});
   } catch (err) {
     console.log('Error creating case', err);
   } // try
@@ -378,3 +391,4 @@ app.use((err, req, res, next) => {
     });
   }
 }); // error handler
+
