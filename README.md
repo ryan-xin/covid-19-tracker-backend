@@ -10,7 +10,11 @@ Frontend [link.](https://github.com/ryan-xin/covid-19-tracker-frontend)
 
 Here is the live [website.](https://ryan-xin.github.io/covid-19-tracker-frontend)
 
-![Screenshot of the website:](https://github.com/ryan-xin/wdywt/blob/master/app/assets/images/wdywt_01.png)
+![Screenshot of the website:](https://raw.githubusercontent.com/ryan-xin/covid-19-tracker-frontend/master/public/01%20Covid-19%20Tracker%20Login.png)
+![Screenshot of the website:](https://raw.githubusercontent.com/ryan-xin/covid-19-tracker-frontend/master/public/02%20Covid-19%20Tracker%20World%20Map.png)
+![Screenshot of the website:](https://raw.githubusercontent.com/ryan-xin/covid-19-tracker-frontend/master/public/03%20Covid-19%20Tracker%20Local%20Map.png)
+![Screenshot of the website:](https://raw.githubusercontent.com/ryan-xin/covid-19-tracker-frontend/master/public/04%20Covid-19%20Tracker%20Cases%20List.png)
+![Screenshot of the website:](https://github.com/ryan-xin/covid-19-tracker-frontend/blob/master/public/05%20Covid-19%20Tracker%20Case%20Form.png)
 
 ### Main Features ###
 
@@ -27,6 +31,7 @@ Here is the live [website.](https://ryan-xin.github.io/covid-19-tracker-frontend
 * Not mobile responsive;
 * Form day/month/year not aligned;
 * Password field shows password;
+* Highlight invalid form fields;
 * Filter Australia suburbs everytime when open the page.
 
 ### Tech Used ###
