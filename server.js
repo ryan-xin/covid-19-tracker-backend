@@ -12,8 +12,6 @@ mongoose
 .then(() => console.log('Successfully connect to MongoDB.'))
 .catch(err => console.error('Connection error', err));
 
-// const db = require('./models');
-// const db = mongoose.connection;
 const User = require('./models/User');
 const Admin = require('./models/Admin');
 const Case = require('./models/Case');
@@ -83,7 +81,7 @@ const io = require('socket.io')(http);
 
 io.on('connection', socket => {
   console.log('Websocket connected', socket.conn.id);
-});
+}); // socket.io connection
 
 /* ----------------------- Suburb ----------------------- */
 
@@ -91,11 +89,10 @@ const fs = require('fs');
 const suburbsFile = fs.readFileSync('suburbs.json');
 let suburbs = JSON.parse(suburbsFile);
 suburbs = suburbs.data.filter(suburb => suburb.state_name === 'New South Wales');
-// console.log(suburbs);
 const filteredSuburbs = suburbs.map(({suburb, postcode}) => ({
   suburb, postcode
 }));
-// console.log(filteredSuburbs);
+// autocomplete needs an suburbs array
 const filteredSuburbsArray = [];
 filteredSuburbs.forEach(suburb => {
   if (!filteredSuburbsArray.includes(suburb.suburb)) {
@@ -112,7 +109,6 @@ app.get('/suburbs', (req, res) => {
 
 const countriesFile = fs.readFileSync('countries.json');
 const countries = JSON.parse(countriesFile).features;
-// console.log(countries);
 
 app.get('/countries', (req, res) => {
   console.log('Getting all countries');
@@ -123,7 +119,7 @@ app.get('/countries', (req, res) => {
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to covid-19 Tracker.' });
-});
+}); // testing backend route
 
 app.get('/users', (req, res) => {
   console.log('Find user', res.body);
@@ -131,7 +127,6 @@ app.get('/users', (req, res) => {
 
 app.post('/user/login', (req, res) => {
   console.log('User login data', req.body);
-  // res.json(req.body); // echo back the POSTed form data
   const {
     email,
     password
@@ -144,7 +139,6 @@ app.post('/user/login', (req, res) => {
       return console.log('Error retrieving user', err);
     }
     console.log('User found', user);
-    // res.json(user);
     // Check that we actually found a user with the specified email, and also that the password given matches the password for that user
     if (user && bcrypt.compareSync(password, user.password)) {
       // Successful login
@@ -289,13 +283,11 @@ app.post('/cases/create', checkAuth(), async (req, res) => {
       lat,
       lng
     });
-    console.log('Case created ===========================');
     io.emit("notification", {
       message: "New case added",
       case: createdCase
     });
     console.log('Sent notification');
-    // admin = await getAdminWithPopulate(admin._id);
     res.json({createdCase});
   } catch (err) {
     console.log('Error creating case', err);
@@ -377,7 +369,7 @@ app.get('/admin/profile/:adminId', checkAuth(), async (req, res) => {
     console.log(admin);
     res.json({
       admin: admin,
-      cases: admin.cases
+      cases: admin.cases.reverse()
     });
   } catch (err) {
     console.log('Error getting admin profile', err);
