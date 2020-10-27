@@ -271,7 +271,6 @@ app.post('/cases/create', checkAuth(), async (req, res) => {
       lng
     } = req.body;
 
-    // console.log(admin);
     const createdCase = await createCase(req.user._id, {
       location,
       suburb,
